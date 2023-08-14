@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="display"></div>
+    <button onclick="firstStudent()">first</button>
+    <button onclick="nextStudent()">next</button>
+    <button onclick="prevStudent()">Prev</button>
+    <button onclick="lastStudent()">last</button><br>
+    <hr>
+    <button onclick="addStudent()">add</button>
+    <button onclick="killStudent()">delete</button>
+    <button onclick="updStudent()">upd</button><br>
+
+    <input type="text" id="studentName" placeholder="Enter student name">
+    <input type="number" id="studentAge" placeholder="Enter student age">
+    <script>
+        let index = 0;
+        let students = [];
+
+        async function getData() {
+            let server = "http://localhost:3000/students"; // local
+            // let server = "https://jsonplaceholder.typicode.com/todos"; // remote
+            try {
+                let response = await fetch(server);
+                students = await response.json();
+                updateDisplay();
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        function updateDisplay() {
+            if (students.length > 0) {
+                display.innerHTML = `Name: ${students[index % students.length].name}<br>`;
+                display.innerHTML += `Age: ${students[index % students.length].age}<br>`;
+            } else {
+                display.innerHTML = "No students available.";
+            }
+        }
+
+        function nextStudent() {
+            index++;
+            updateDisplay();
+        }
+
+        function prevStudent() {
+            index = index > 0 ? --index : 0;
+            updateDisplay();
+        }
+
+        function firstStudent() {
+            index = 0;
+            updateDisplay();
+        }
+
+        function lastStudent() {
+            index = students.length - 1;
+            updateDisplay();
+        }
+
+        function addStudent() {
+            let name = document.getElementById('studentName').value;
+            let age = parseInt(document.getElementById('studentAge').value);
+
+            if (name && !isNaN(age)) {
+                students.push({
+                    name: name,
+                    age: age
+                });
+
+                document.getElementById('studentName').value = '';
+                document.getElementById('studentAge').value = '';
+
+                index = students.length - 1;
+                updateDisplay();
+            } else {
+                console.log("Please enter a valid name and age.");
+            }
+        }
+
+        function killStudent() {
+            if (students.length > 0) {
+                students.splice(index % students.length, 1);
+                index = 0;
+                updateDisplay();
+            }
+        }
+
+        function updStudent() {
+            if (students.length > 0) {
+                let name = document.getElementById('studentName').value;
+                let age = parseInt(document.getElementById('studentAge').value);
+
+                if (name && !isNaN(age)) {
+                    students[index % students.length].name = name;
+                    students[index % students.length].age = age;
+                    updateDisplay();
+                } else {
+                    console.log("Please enter a valid name and age.");
+                }
+            }
+        }
+
+        // Fetch initial data and display first student when the program starts
+        getData();
+
+    </script>
+</body>
+
+</html>
